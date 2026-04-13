@@ -1,0 +1,51 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # --- Backend Job ---
+  backend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Test Backend
+        working-directory: ./Backend
+        run: |
+          npm install
+          # npm test (Optional: add tests here)
+
+      # Example: Deploying to Render/Railway via a Webhook or CLI
+      - name: Deploy Backend
+        run: echo "Add your backend deployment command here"
+
+  # --- Frontend Job ---
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    needs: backend-deploy # Only deploy frontend if backend succeeds
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Frontend
+        working-directory: ./src # or wherever your React code lives
+        run: |
+          npm install
+          npm run build
+        env:
+          REACT_APP_API_URL: ${{ secrets.BACKEND_URL }}
+
+      # Example: Deploying to Vercel/Netlify
+      - name: Deploy Frontend
+        run: echo "Add your frontend deployment command here"
